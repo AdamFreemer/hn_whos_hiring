@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+
+# Node / Next (app-level .gitignore in hn-hiring-app/ covers the rest)
+node_modules/
+.env
+.env.local
+.env*.local
+.vercel

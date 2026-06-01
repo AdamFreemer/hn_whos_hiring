@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Who Is Hiring — Field Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0e0c0a; --panel:#16120d; --panel2:#1d1812; --line:#2c241b;
+    --text:#ece4d6; --muted:#8f8473; --faint:#5f574a;
+    --accent:#ff6600; --accent-soft:#ff8a3d;
+    --serif:"Fraunces",Georgia,"Times New Roman",serif;
+    --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--text);font-family:var(--mono);font-size:15px;line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 500px at 85% -10%, rgba(255,102,0,.10), transparent 60%),
+      radial-gradient(700px 400px at 0% 0%, rgba(98,185,138,.05), transparent 55%);
+    background-attachment:fixed;
+  }
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.35;
+    background-image:repeating-linear-gradient(to bottom, rgba(255,255,255,.018) 0 1px, transparent 1px 3px);
+    mix-blend-mode:overlay;}
+  .wrap{position:relative;z-index:1;max-width:1040px;margin:0 auto;padding:48px 24px 90px}
+
+  header{border-bottom:1px solid var(--line);padding-bottom:26px;margin-bottom:34px}
+  .kicker{font-size:12px;letter-spacing:.34em;text-transform:uppercase;color:var(--accent);margin:0 0 14px}
+  h1{font-family:var(--serif);font-weight:900;font-size:clamp(38px,7vw,76px);line-height:.95;letter-spacing:-.02em;margin:0}
+  h1 em{font-style:italic;font-weight:500;color:var(--accent-soft)}
+  .dek{color:var(--muted);max-width:62ch;margin:18px 0 0;font-size:14.5px}
+  .dek a{color:var(--text);text-decoration:none;border-bottom:1px solid var(--faint)}
+  .dek a:hover{border-color:var(--accent)}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin:32px 0 8px}
+  .stat{background:var(--panel);padding:20px 20px 22px;min-height:118px}
+  .stat .label{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin-bottom:12px}
+  .stat .big{font-family:var(--serif);font-weight:900;font-size:46px;line-height:1}
+  .stat .big small{font-size:18px;font-weight:600;color:var(--muted)}
+  .stat .sub{font-size:12.5px;color:var(--muted);margin-top:8px}
+  .stat.accent .big{color:var(--accent)}
+  @media(max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}}
+
+  section{margin-top:52px}
+  .sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:22px;flex-wrap:wrap}
+  .sec-head h2{font-family:var(--serif);font-weight:600;font-size:27px;margin:0;letter-spacing:-.01em}
+  .sec-head .meta{font-size:12.5px;color:var(--muted)}
+  .sec-head .meta b{color:var(--accent-soft);font-weight:600}
+
+  .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+  label.cl{font-size:12px;color:var(--faint);letter-spacing:.1em;text-transform:uppercase}
+  select,button{font-family:var(--mono);font-size:13px;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:0;padding:9px 13px;cursor:pointer;transition:border-color .15s,color .15s,background .15s}
+  select:hover,button:hover{border-color:var(--accent)}
+  button:disabled{opacity:.5;cursor:default}
+  .toggle{display:inline-flex;border:1px solid var(--line)}
+  .toggle button{border:none;border-right:1px solid var(--line);background:transparent;padding:9px 16px;letter-spacing:.08em;text-transform:uppercase;font-size:11.5px}
+  .toggle button:last-child{border-right:none}
+  .toggle button.on{background:var(--accent);color:#1a0f00;font-weight:600}
+  .spacer{flex:1}
+  .hint{font-size:12px;color:var(--faint);margin:-6px 0 16px}
+
+  .bars{display:flex;flex-direction:column;gap:9px}
+  .bar-row{display:grid;grid-template-columns:148px 1fr 86px;align-items:center;gap:14px;cursor:pointer;padding:2px 4px;margin:0 -4px;transition:background .15s}
+  .bar-row:hover{background:rgba(255,102,0,.06)}
+  .bar-row.sel{background:rgba(255,102,0,.12)}
+  .bar-row .name{font-size:13.5px;text-align:right;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar-row .name .approx{color:var(--faint)}
+  .bar-row.feat .name{color:var(--accent-soft);font-weight:600}
+  .track{position:relative;height:26px;background:var(--panel);border:1px solid var(--line)}
+  .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--accent);transition:width .9s cubic-bezier(.2,.8,.2,1)}
+  .bar-row.feat .fill{background:linear-gradient(90deg,var(--accent),var(--accent-soft))}
+  .bar-row .val{font-size:13px;color:var(--muted);white-space:nowrap}
+  .bar-row .val b{color:var(--text);font-weight:600}
+  @media(max-width:560px){.bar-row{grid-template-columns:104px 1fr 70px;gap:9px}.bar-row .name{font-size:12px}}
+
+  /* posts panel */
+  #postsPanel{margin-top:30px}
+  #postsPanel.empty{display:none}
+  .posts-box{border-top:1px solid var(--accent);padding-top:20px}
+  .posts-box h3{font-family:var(--serif);font-weight:600;font-size:21px;margin:0 0 3px}
+  .posts-box h3 b{color:var(--accent-soft)}
+  .ph{font-size:12.5px;color:var(--muted);margin-bottom:16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  .ph a{color:var(--accent-soft);text-decoration:none;border-bottom:1px solid transparent}
+  .ph a:hover{border-color:var(--accent-soft)}
+  .post{border:1px solid var(--line);background:var(--panel);padding:13px 15px;margin-bottom:9px}
+  .post .t{font-size:13.5px;color:var(--text);font-weight:600;line-height:1.4}
+  .post .s{font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.5}
+  .post .m{font-size:11.5px;color:var(--faint);margin-top:9px;display:flex;gap:14px;align-items:center}
+  .post .m a{color:var(--accent-soft);text-decoration:none}
+  .post .m a:hover{text-decoration:underline}
+  .closex{margin-left:auto;background:transparent;border:1px solid var(--line);padding:5px 10px;font-size:11px;color:var(--muted)}
+
+  /* trend */
+  .picker{background:var(--panel);border:1px solid var(--line);padding:14px 16px;margin-bottom:14px}
+  .picker .grp{display:flex;gap:8px 15px;flex-wrap:wrap;align-items:center;margin:6px 0}
+  .picker .gh{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);width:92px;flex-shrink:0}
+  .chk{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer;color:var(--muted);user-select:none}
+  .chk input{accent-color:var(--accent);margin:0;cursor:pointer}
+  .chk .sw{width:11px;height:11px;border-radius:2px;display:inline-block;flex-shrink:0;opacity:.35}
+  .chk.on{color:var(--text)} .chk.on .sw{opacity:1}
+  .pickrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+  .mini{font-size:11px;padding:6px 10px}
+  #trendWrap{background:var(--panel);border:1px solid var(--line);padding:22px 20px 14px;margin-top:6px}
+  #trendChart{width:100%;height:auto;display:block}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:12.5px;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .legend i{width:18px;height:3px;display:inline-block}
+  #trendStatus{font-size:12.5px;color:var(--muted);margin-left:4px}
+  #customRange{display:none;gap:8px;align-items:center}
+  #customRange.show{display:inline-flex}
+
+  .note{font-size:12.5px;color:var(--faint);line-height:1.7;border-top:1px solid var(--line);margin-top:60px;padding-top:22px}
+  .note b{color:var(--muted)}
+  .loading{color:var(--muted);font-size:13px;display:flex;align-items:center;gap:10px}
+  .dot{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 1s infinite ease-in-out}
+  @keyframes pulse{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+  .err{background:rgba(255,102,0,.08);border:1px solid var(--accent);padding:16px 18px;font-size:13px;color:var(--accent-soft)}
+  .err b{color:var(--text)}
+  .hidden{display:none}
+  .skel{color:var(--faint)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="kicker">Hacker News · Ask HN: Who is hiring?</p>
+    <h1>The Hiring <em>Thread</em>, Counted</h1>
+    <p class="dek">A live read of the <a href="https://news.ycombinator.com/user?id=whoishiring" target="_blank" rel="noopener">whoishiring</a> account: every monthly thread it has ever posted, and what languages and frameworks show up in any given one. Data pulled fresh from the public Hacker News (Algolia) search API each time this page loads.</p>
+  </header>
+
+  <div class="stats" id="stats">
+    <div class="stat accent"><div class="label">Monthly threads</div><div class="big skel" id="s-count">··</div><div class="sub" id="s-count-sub">counting…</div></div>
+    <div class="stat"><div class="label">First thread</div><div class="big skel" id="s-first" style="font-size:30px">····</div><div class="sub" id="s-first-sub">&nbsp;</div></div>
+    <div class="stat"><div class="label">Most recent</div><div class="big skel" id="s-last" style="font-size:30px">····</div><div class="sub" id="s-last-sub">&nbsp;</div></div>
+    <div class="stat"><div class="label">Span</div><div class="big skel" id="s-span" style="font-size:30px">··</div><div class="sub" id="s-span-sub">&nbsp;</div></div>
+  </div>
+  <div id="statErr"></div>
+
+  <section id="analysis">
+    <div class="sec-head">
+      <h2>What a thread is asking for</h2>
+      <div class="meta" id="thread-meta">&nbsp;</div>
+    </div>
+    <div class="controls">
+      <label class="cl">Thread</label>
+      <select id="monthSelect"><option>loading…</option></select>
+      <div class="spacer"></div>
+      <div class="toggle" id="catToggle">
+        <button data-cat="language" class="on">Languages</button>
+        <button data-cat="framework">Frameworks</button>
+      </div>
+    </div>
+    <p class="hint">↳ Click any bar to load the matching job posts at the bottom.</p>
+    <div id="analysisBody"><div class="loading"><span class="dot"></span> Reading job posts…</div></div>
+    <div id="postsPanel" class="empty"></div>
+  </section>
+
+  <section id="trend">
+    <div class="sec-head">
+      <h2>Trend over time</h2>
+      <div class="meta">Share of job posts mentioning each, by month</div>
+    </div>
+    <div id="trendGate"><button id="trendBtn">▶ Open trend explorer</button></div>
+
+    <div id="trendUI" class="hidden">
+      <div class="picker" id="picker"></div>
+      <div class="controls">
+        <label class="cl">Range</label>
+        <div class="toggle" id="rangeToggle">
+          <button data-r="6m">6 mo</button>
+          <button data-r="1y" class="on">1 yr</button>
+          <button data-r="2y">2 yr</button>
+          <button data-r="all">All</button>
+          <button data-r="custom">Custom</button>
+        </div>
+        <span id="customRange">
+          <select id="rangeFrom"></select>
+          <span style="color:var(--faint)">→</span>
+          <select id="rangeTo"></select>
+        </span>
+        <span id="trendStatus"></span>
+      </div>
+      <div id="trendWrap" class="hidden">
+        <svg id="trendChart" viewBox="0 0 820 340" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Trend chart"></svg>
+        <div class="legend" id="trendLegend"></div>
+      </div>
+    </div>
+  </section>
+
+  <p class="note" id="methodology">
+    <b>Method.</b> Threads are every story by the <b>whoishiring</b> account whose title contains “who is hiring” (excluding the sibling “Who wants to be hired?” and “Freelancer?” threads). Counts are <b>post-level</b>: a technology scores once per top-level job post that mentions it, not once per raw occurrence, mirroring hntrends.com and keeping one verbose listing from skewing totals. Matching is case-insensitive on word boundaries. Labels marked <span class="skel">≈</span> (Go, Spring, Express, Phoenix, C) collide with ordinary English words and are best read as upper bounds. JavaScript counts the literal word “javascript,” not “JS,” to avoid double-counting Node.js / Next.js. Source: the free public Hacker News Search API (Algolia). Nothing is stored.
+  </p>
+
+</div>
+
+<script>
+const API = "https://hn.algolia.com/api/v1/search";
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+const LANGS = [
+  {name:"Python",     featured:true, test:l=>/\bpython\b/.test(l)},
+  {name:"JavaScript", featured:true, test:l=>/\bjavascript\b/.test(l)},
+  {name:"Java",       featured:true, test:l=>/\bjava\b/.test(l)},
+  {name:"Ruby",       featured:true, test:l=>/\bruby\b/.test(l)},
+  {name:"TypeScript", test:l=>/\btypescript\b/.test(l)},
+  {name:"Go",         approx:true, test:(l,r)=>/\bgolang\b/.test(l)||/\bGo\b/.test(r)},
+  {name:"Rust",       test:l=>/\brust\b/.test(l)},
+  {name:"C++",        test:l=>/c\+\+/.test(l)},
+  {name:"C#",         test:l=>/c#/.test(l)},
+  {name:"PHP",        test:l=>/\bphp\b/.test(l)},
+  {name:"Swift",      test:l=>/\bswift\b/.test(l)},
+  {name:"Kotlin",     test:l=>/\bkotlin\b/.test(l)},
+  {name:"Scala",      test:l=>/\bscala\b/.test(l)},
+  {name:"Elixir",     test:l=>/\belixir\b/.test(l)},
+  {name:"Clojure",    test:l=>/\bclojure\b/.test(l)},
+  {name:"Haskell",    test:l=>/\bhaskell\b/.test(l)},
+  {name:"C",          approx:true, test:(l,r)=>/\bC\b/.test(r)},
+];
+const FRAMEWORKS = [
+  {name:"React",   test:l=>/\breact\b/.test(l)},
+  {name:"Rails",   featured:true, test:l=>/\brails\b/.test(l)||/ruby on rails/.test(l)},
+  {name:"Django",  featured:true, test:l=>/\bdjango\b/.test(l)},
+  {name:"Node.js", test:l=>/\bnode(\.?js)?\b/.test(l)},
+  {name:"Next.js", test:l=>/\bnext\.?js\b/.test(l)},
+  {name:"Vue",     test:l=>/\bvue(\.?js)?\b/.test(l)},
+  {name:"Angular", test:l=>/\bangular\b/.test(l)},
+  {name:"Svelte",  test:l=>/\bsvelte\b/.test(l)},
+  {name:".NET",    test:l=>/\.net\b/.test(l)||/\bdotnet\b/.test(l)||/asp\.net/.test(l)},
+  {name:"Spring",  approx:true, test:l=>/\bspring\b/.test(l)},
+  {name:"Flask",   test:l=>/\bflask\b/.test(l)},
+  {name:"FastAPI", test:l=>/\bfastapi\b/.test(l)},
+  {name:"Laravel", test:l=>/\blaravel\b/.test(l)},
+  {name:"Express", approx:true, test:l=>/\bexpress\b/.test(l)},
+  {name:"Phoenix", approx:true, test:l=>/\bphoenix\b/.test(l)},
+];
+// merged list with colors (golden-angle hues for separation)
+const ALLTECH = [];
+LANGS.forEach(t=>ALLTECH.push(Object.assign({cat:"language"},t)));
+FRAMEWORKS.forEach(t=>ALLTECH.push(Object.assign({cat:"framework"},t)));
+ALLTECH.forEach((t,i)=>{ t.color = `hsl(${(i*137.508%360).toFixed(0)} 60% 62%)`; });
+const techByName = Object.fromEntries(ALLTECH.map(t=>[t.name,t]));
+const DEFAULT_TREND = new Set(["Python","JavaScript","Java","Ruby","Rails","Django"]);
+
+const $ = id => document.getElementById(id);
+const esc = s => (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const stripHTML = (()=>{ const d=document.createElement("div");
+  return h=>{ d.innerHTML=h||""; return d.textContent||""; }; })();
+
+async function fetchJSON(url){ const r=await fetch(url,{headers:{Accept:"application/json"}}); if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); }
+async function fetchAll(tags){
+  const first=await fetchJSON(`${API}?tags=${tags}&hitsPerPage=1000&page=0`);
+  let hits=first.hits||[]; const pages=Math.min(first.nbPages||1,6);
+  if(pages>1){ const rest=await Promise.all(Array.from({length:pages-1},(_,i)=>
+    fetchJSON(`${API}?tags=${tags}&hitsPerPage=1000&page=${i+1}`).then(d=>d.hits||[]).catch(()=>[]) ));
+    rest.forEach(h=>hits=hits.concat(h)); }
+  return hits;
+}
+const fmtMonth = iso => { const d=new Date(iso); return MONTHS[d.getUTCMonth()]+" "+d.getUTCFullYear(); };
+
+let THREADS=[], currentCat="language", currentPosts=null, currentThread=null;
+let selectedName=null, postCache={};
+
+async function loadThreads(){
+  const hits=await fetchAll("author_whoishiring,story");
+  THREADS=hits.filter(h=>h.title&&/who is hiring/i.test(h.title))
+    .map(h=>({id:h.objectID,title:h.title,date:h.created_at,ts:h.created_at_i,comments:h.num_comments||0,points:h.points||0}))
+    .filter((h,i,a)=>a.findIndex(x=>x.id===h.id)===i)
+    .sort((a,b)=>b.ts-a.ts);
+  if(!THREADS.length) throw new Error("No threads returned");
+
+  const first=THREADS[THREADS.length-1], last=THREADS[0];
+  const months=(new Date(last.date).getUTCFullYear()-new Date(first.date).getUTCFullYear())*12
+    +(new Date(last.date).getUTCMonth()-new Date(first.date).getUTCMonth());
+  $("s-count").textContent=THREADS.length; $("s-count").classList.remove("skel");
+  $("s-count-sub").textContent="posted by whoishiring";
+  $("s-first").textContent=fmtMonth(first.date); $("s-first").classList.remove("skel"); $("s-first-sub").textContent="the run begins";
+  $("s-last").textContent=fmtMonth(last.date); $("s-last").classList.remove("skel"); $("s-last-sub").textContent=last.comments+" comments · "+last.points+" pts";
+  $("s-span").innerHTML=Math.floor(months/12)+"<small>y</small> "+(months%12)+"<small>m</small>"; $("s-span").classList.remove("skel");
+  $("s-span-sub").textContent=months+" months elapsed";
+
+  const sel=$("monthSelect"); sel.innerHTML="";
+  THREADS.forEach((t,i)=>{ const o=document.createElement("option"); o.value=t.id; o.textContent=fmtMonth(t.date)+(i===0?"  (latest)":""); sel.appendChild(o); });
+  sel.onchange=()=>analyzeThread(sel.value);
+
+  // custom-range selects
+  ["rangeFrom","rangeTo"].forEach(id=>{ const s=$(id); s.innerHTML="";
+    THREADS.slice().reverse().forEach(t=>{ const o=document.createElement("option"); o.value=t.ts; o.textContent=fmtMonth(t.date); s.appendChild(o); }); });
+  $("rangeFrom").value=THREADS[Math.min(11,THREADS.length-1)].ts; // ~1yr ago
+  $("rangeTo").value=THREADS[0].ts;
+
+  buildPicker();
+  await analyzeThread(THREADS[0].id);
+}
+
+async function getPosts(threadId){
+  if(postCache[threadId]) return postCache[threadId];
+  const hits=await fetchAll(`comment,story_${threadId}`);
+  const posts=hits.filter(h=>String(h.parent_id)===String(threadId)&&h.comment_text)
+    .map(h=>{ const raw=stripHTML(h.comment_text); return {id:h.objectID,author:h.author||"",raw,lower:raw.toLowerCase()}; });
+  postCache[threadId]=posts; return posts;
+}
+
+async function analyzeThread(threadId){
+  const t=THREADS.find(x=>String(x.id)===String(threadId))||THREADS[0];
+  currentThread=t;
+  $("analysisBody").innerHTML='<div class="loading"><span class="dot"></span> Reading job posts…</div>';
+  $("thread-meta").innerHTML="&nbsp;"; clearPosts();
+  let posts; try{ posts=await getPosts(threadId); }
+  catch(e){ $("analysisBody").innerHTML=`<div class="err"><b>Couldn't load this thread.</b> ${esc(e.message)}</div>`; return; }
+  currentPosts=posts;
+  $("thread-meta").innerHTML=`<b>${posts.length}</b> top-level job posts · <a href="https://news.ycombinator.com/item?id=${threadId}" target="_blank" rel="noopener" style="color:var(--muted)">view on HN ↗</a>`;
+  renderBars();
+}
+
+function currentRows(){
+  const dict=currentCat==="language"?LANGS:FRAMEWORKS;
+  return dict.map(tech=>{ let n=0; for(const p of currentPosts){ if(tech.test(p.lower,p.raw)) n++; }
+    return {tech,n,pct:currentPosts.length?n/currentPosts.length*100:0}; }).sort((a,b)=>b.n-a.n);
+}
+function renderBars(){
+  if(!currentPosts) return;
+  const rows=currentRows(); const max=Math.max(1,...rows.map(r=>r.n));
+  $("analysisBody").innerHTML=`<div class="bars">`+rows.map((r,i)=>`
+    <div class="bar-row ${r.tech.featured?"feat":""} ${r.tech.name===selectedName?"sel":""}" data-idx="${i}">
+      <div class="name">${r.tech.name}${r.tech.approx?' <span class="approx" title="collides with common words — upper bound">≈</span>':""}</div>
+      <div class="track"><div class="fill" data-w="${(r.n/max*100).toFixed(1)}"></div></div>
+      <div class="val"><b>${r.n}</b> · ${r.pct.toFixed(0)}%</div>
+    </div>`).join("")+`</div>`;
+  const rowEls=$("analysisBody").querySelectorAll(".bar-row");
+  rowEls.forEach(el=>{ el.onclick=()=>{ const r=rows[+el.dataset.idx]; selectedName=r.tech.name; renderBars(); showPosts(r.tech); }; });
+  requestAnimationFrame(()=>{ $("analysisBody").querySelectorAll(".fill").forEach((el,i)=>{ setTimeout(()=>{el.style.width=el.dataset.w+"%";},35*i); }); });
+}
+document.querySelectorAll("#catToggle button").forEach(b=>{ b.onclick=()=>{
+  document.querySelectorAll("#catToggle button").forEach(x=>x.classList.remove("on")); b.classList.add("on");
+  currentCat=b.dataset.cat; selectedName=null; clearPosts(); renderBars(); }; });
+
+// ---- posts panel ----
+function clearPosts(){ const p=$("postsPanel"); p.className="empty"; p.innerHTML=""; }
+function postCard(p,tech){
+  const lines=p.raw.split("\n").map(s=>s.trim()).filter(Boolean);
+  let title=lines[0]||p.raw.slice(0,100);
+  if(title.length>140) title=title.slice(0,140)+"…";
+  let snip=lines.slice(1).join(" ")||"";
+  const re=tech.re; // highlight handled lightly via context
+  if(snip.length>240) snip=snip.slice(0,240)+"…";
+  return `<div class="post">
+    <div class="t">${esc(title)}</div>
+    ${snip?`<div class="s">${esc(snip)}</div>`:""}
+    <div class="m"><span>by ${esc(p.author)}</span><a href="https://news.ycombinator.com/item?id=${p.id}" target="_blank" rel="noopener">read on HN ↗</a></div>
+  </div>`;
+}
+function showPosts(tech){
+  if(!currentPosts) return;
+  const matches=currentPosts.filter(p=>tech.test(p.lower,p.raw));
+  const panel=$("postsPanel"); panel.className="";
+  const monthLabel=fmtMonth(currentThread.date);
+  const shown=matches.slice(0,10);
+  panel.innerHTML=`<div class="posts-box">
+    <h3>Posts mentioning <b>${esc(tech.name)}</b></h3>
+    <div class="ph">
+      <span>${matches.length} of ${currentPosts.length} posts in ${monthLabel}</span>
+      ${matches.length>10?`<a href="#" id="openAll">Open all ${matches.length} in a new tab ↗</a><a href="#" id="expandAll">show all here ↓</a>`:""}
+      <button class="closex" id="closePosts">close ✕</button>
+    </div>
+    <div id="postList">${shown.map(p=>postCard(p,tech)).join("")}</div>
+  </div>`;
+  $("closePosts").onclick=()=>{ selectedName=null; clearPosts(); renderBars(); };
+  if(matches.length>10){
+    $("expandAll").onclick=e=>{ e.preventDefault(); $("postList").innerHTML=matches.map(p=>postCard(p,tech)).join(""); $("expandAll").remove(); };
+    $("openAll").onclick=e=>{ e.preventDefault();
+      const html=standalone(tech,matches,monthLabel);
+      let win=null; try{ win=window.open("","_blank"); }catch(_){}
+      if(win){ win.document.open(); win.document.write(html); win.document.close(); }
+      else { // popup blocked → expand inline
+        $("postList").innerHTML=matches.map(p=>postCard(p,tech)).join("");
+        $("openAll").textContent="(new tab blocked — expanded below)"; $("openAll").style.pointerEvents="none";
+        const x=$("expandAll"); if(x) x.remove();
+      }
+    };
+  }
+  panel.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function standalone(tech,matches,monthLabel){
+  const items=matches.map((p,i)=>{
+    const lines=p.raw.split("\n").map(s=>s.trim()).filter(Boolean);
+    const title=esc(lines[0]||p.raw.slice(0,120));
+    const body=esc(lines.slice(1).join("\n")).replace(/\n/g,"<br>");
+    return `<article><h2>${i+1}. ${title}</h2>${body?`<p>${body}</p>`:""}
+      <div class="meta">by ${esc(p.author)} · <a href="https://news.ycombinator.com/item?id=${p.id}" target="_blank">read on HN ↗</a></div></article>`;
+  }).join("");
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>${esc(tech.name)} · ${esc(monthLabel)} · Who is hiring</title>
+  <style>
+    body{margin:0;background:#0e0c0a;color:#ece4d6;font:15px/1.6 "IBM Plex Mono",ui-monospace,Menlo,monospace;padding:40px 20px 80px}
+    .wrap{max-width:840px;margin:0 auto}
+    h1{font:600 30px/1.1 Fraunces,Georgia,serif;margin:0 0 6px}
+    h1 b{color:#ff8a3d}
+    .sub{color:#8f8473;font-size:13px;margin-bottom:30px;border-bottom:1px solid #2c241b;padding-bottom:18px}
+    article{border:1px solid #2c241b;background:#16120d;padding:16px 18px;margin-bottom:12px}
+    h2{font:600 15px/1.4 "IBM Plex Mono",monospace;margin:0 0 8px;color:#ece4d6}
+    p{margin:0;color:#b8ad9b;font-size:13.5px;white-space:normal}
+    .meta{margin-top:12px;font-size:12px;color:#5f574a}
+    .meta a{color:#ff8a3d;text-decoration:none}
+    @media print{body{background:#fff;color:#000}article{border-color:#ccc;background:#fff}}
+  </style></head><body><div class="wrap">
+  <h1>Posts mentioning <b>${esc(tech.name)}</b></h1>
+  <div class="sub">${matches.length} job posts · Ask HN: Who is hiring? (${esc(monthLabel)}) · generated ${new Date().toISOString().slice(0,10)}</div>
+  ${items}
+  </div></body></html>`;
+}
+
+// ---- trend ----
+function buildPicker(){
+  const mk=t=>`<label class="chk ${DEFAULT_TREND.has(t.name)?"on":""}" data-name="${t.name}">
+      <input type="checkbox" ${DEFAULT_TREND.has(t.name)?"checked":""}>
+      <span class="sw" style="background:${t.color}"></span>${t.name}${t.approx?" ≈":""}</label>`;
+  $("picker").innerHTML=`
+    <div class="grp"><span class="gh">Languages</span>${LANGS.map(t=>mk(techByName[t.name])).join("")}</div>
+    <div class="grp"><span class="gh">Frameworks</span>${FRAMEWORKS.map(t=>mk(techByName[t.name])).join("")}</div>
+    <div class="pickrow">
+      <button class="mini" id="pkNamed">My picks</button>
+      <button class="mini" id="pkTop">Top 6 (this thread)</button>
+      <button class="mini" id="pkNone">Clear</button>
+    </div>`;
+  $("picker").querySelectorAll(".chk").forEach(l=>{ const inp=l.querySelector("input");
+    inp.onchange=()=>{ l.classList.toggle("on",inp.checked); drawIfReady(); }; });
+  $("pkNamed").onclick=()=>setPicks(["Python","JavaScript","Java","Ruby","Rails","Django"]);
+  $("pkNone").onclick=()=>setPicks([]);
+  $("pkTop").onclick=()=>{ if(!currentPosts) return;
+    const all=[...LANGS,...FRAMEWORKS].map(t=>{let n=0;for(const p of currentPosts)if(t.test(p.lower,p.raw))n++;return{name:t.name,n};})
+      .sort((a,b)=>b.n-a.n).slice(0,6).map(x=>x.name); setPicks(all); };
+}
+function setPicks(names){ const set=new Set(names);
+  $("picker").querySelectorAll(".chk").forEach(l=>{ const on=set.has(l.dataset.name); l.classList.toggle("on",on); l.querySelector("input").checked=on; });
+  drawIfReady(); }
+function selectedTechs(){ return [...$("picker").querySelectorAll(".chk")].filter(l=>l.querySelector("input").checked).map(l=>techByName[l.dataset.name]); }
+
+let trendRange="1y", trendSeries=null;
+$("trendBtn").onclick=async()=>{ $("trendGate").classList.add("hidden"); $("trendUI").classList.remove("hidden"); await runRange("1y"); };
+document.querySelectorAll("#rangeToggle button").forEach(b=>{ b.onclick=()=>{
+  document.querySelectorAll("#rangeToggle button").forEach(x=>x.classList.remove("on")); b.classList.add("on");
+  trendRange=b.dataset.r; $("customRange").classList.toggle("show",trendRange==="custom"); runRange(trendRange); }; });
+["rangeFrom","rangeTo"].forEach(id=>$(id).onchange=()=>{ if(trendRange==="custom") runRange("custom"); });
+
+function threadsForRange(){
+  if(trendRange==="custom"){ const a=+$("rangeFrom").value,b=+$("rangeTo").value; const lo=Math.min(a,b),hi=Math.max(a,b);
+    return THREADS.filter(t=>t.ts>=lo&&t.ts<=hi).slice().sort((x,y)=>x.ts-y.ts); }
+  const n=trendRange==="6m"?6:trendRange==="1y"?12:trendRange==="2y"?24:THREADS.length;
+  return THREADS.slice(0,n).slice().sort((x,y)=>x.ts-y.ts);
+}
+async function runRange(){
+  const set=threadsForRange();
+  if(!set.length){ $("trendStatus").textContent="no threads in range"; return; }
+  const todo=set.filter(t=>!postCache[t.id]); let done=set.length-todo.length;
+  const status=$("trendStatus");
+  const upd=()=>status.textContent=`loading posts… ${done}/${set.length}`;
+  if(todo.length) upd(); else status.textContent="";
+  const queue=todo.slice();
+  const workers=Array.from({length:6},async()=>{ while(queue.length){ const t=queue.shift();
+    try{ await getPosts(t.id); }catch(_){ postCache[t.id]=[]; } done++; upd(); } });
+  await Promise.all(workers);
+  status.textContent=`${set.length} threads`;
+  trendSeries=set.map(t=>{ const posts=postCache[t.id]||[]; const point={label:fmtMonth(t.date),short:shortLabel(t.date),total:posts.length,vals:{}};
+    ALLTECH.forEach(tech=>{ let n=0; for(const p of posts){ if(tech.test(p.lower,p.raw)) n++; } point.vals[tech.name]=posts.length?n/posts.length*100:0; }); return point; });
+  drawTrend();
+}
+function shortLabel(iso){ const d=new Date(iso); return MONTHS[d.getUTCMonth()][0]+(""+d.getUTCFullYear()).slice(2); }
+function drawIfReady(){ if(trendSeries) drawTrend(); }
+
+function drawTrend(){
+  if(!trendSeries) return;
+  $("trendWrap").classList.remove("hidden");
+  const techs=selectedTechs(); const series=trendSeries;
+  const W=820,H=340,padL=44,padR=16,padT=18,padB=46, innerW=W-padL-padR, innerH=H-padT-padB;
+  const maxPct=Math.max(8,...series.flatMap(p=>techs.map(t=>p.vals[t.name]||0)))*1.12;
+  const x=i=>padL+(series.length<=1?innerW/2:innerW*i/(series.length-1));
+  const y=v=>padT+innerH-(v/maxPct*innerH);
+  let svg="";
+  for(let g=0;g<=4;g++){ const v=maxPct*g/4, yy=y(v);
+    svg+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="#2c241b"/>`;
+    svg+=`<text x="${padL-8}" y="${yy+4}" fill="#5f574a" font-size="11" text-anchor="end" font-family="IBM Plex Mono,monospace">${v.toFixed(0)}%</text>`; }
+  const step=Math.ceil(series.length/12);
+  series.forEach((p,i)=>{ if(i%step===0||i===series.length-1){
+    svg+=`<text x="${x(i)}" y="${H-padB+22}" fill="#8f8473" font-size="10.5" text-anchor="middle" font-family="IBM Plex Mono,monospace">${p.short}</text>`; } });
+  techs.forEach(tech=>{ const pts=series.map((p,i)=>`${x(i)},${y(p.vals[tech.name]||0)}`).join(" ");
+    svg+=`<polyline points="${pts}" fill="none" stroke="${tech.color}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>`;
+    if(series.length<=26) series.forEach((p,i)=>{ svg+=`<circle cx="${x(i)}" cy="${y(p.vals[tech.name]||0)}" r="2.8" fill="${tech.color}"/>`; }); });
+  if(!techs.length) svg+=`<text x="${W/2}" y="${H/2}" fill="#5f574a" font-size="13" text-anchor="middle" font-family="IBM Plex Mono,monospace">select one or more technologies above</text>`;
+  $("trendChart").innerHTML=svg;
+  $("trendLegend").innerHTML=techs.map(t=>`<span><i style="background:${t.color}"></i>${t.name}</span>`).join("");
+}
+
+loadThreads().catch(e=>{
+  $("statErr").innerHTML=`<div class="err" style="margin-top:18px"><b>Couldn't reach the Hacker News API.</b> ${esc(e.message)}. This page needs network access to <code>hn.algolia.com</code>. If it's blocked in this preview, open the downloaded file directly in a browser tab and it will load.</div>`;
+  ["s-count","s-first","s-last","s-span"].forEach(id=>$(id).textContent="—");
+  $("analysisBody").innerHTML="";
+});
+</script>
+</body>
+</html>

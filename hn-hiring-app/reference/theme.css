@@ -1,0 +1,28 @@
+/* Design tokens extracted from reference/prototype.html.
+   The prototype is the full source of truth; these are the core variables to
+   carry into globals.css / the Tailwind theme. Fonts: Fraunces (display/serif)
+   + IBM Plex Mono (body/data). Load via next/font. Dark editorial theme,
+   HN-orange accent. */
+
+:root {
+  --bg:          #0e0c0a;  /* near-black warm background */
+  --panel:       #16120d;  /* card / panel */
+  --panel2:      #1d1812;  /* control surfaces */
+  --line:        #2c241b;  /* hairlines / borders */
+  --text:        #ece4d6;  /* primary warm off-white */
+  --muted:       #8f8473;  /* secondary text */
+  --faint:       #5f574a;  /* tertiary / labels */
+  --accent:      #ff6600;  /* HN orange */
+  --accent-soft: #ff8a3d;  /* lighter orange for highlights */
+
+  --serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --mono:  "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* Texture used in the prototype: faint radial orange/green glows on the
+   background plus a low-opacity horizontal scanline overlay. Headlines use the
+   serif at heavy weight with an italic accent word in --accent-soft. Bars are
+   thin tracks (--panel) with an --accent fill that animates width on load,
+   featured techs use a left-to-right --accent → --accent-soft gradient.
+   Trend lines are golden-angle HSL hues (stored per-tech in the `techs` table,
+   `color` column). Full implementation: see reference/prototype.html. */
