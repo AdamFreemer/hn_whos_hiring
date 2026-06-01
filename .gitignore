@@ -1,9 +1,36 @@
-# macOS
-.DS_Store
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
 
-# Node / Next (app-level .gitignore in hn-hiring-app/ covers the rest)
-node_modules/
+# next.js
+/.next/
+/out/
+/build
+next-env.d.ts
+
+# production
+/dist
+
+# misc
+.DS_Store
+*.pem
+*.tsbuildinfo
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (never commit real secrets)
 .env
 .env.local
 .env*.local
+
+# vercel
 .vercel
+
+# claude code (local tooling state)
+.claude
+CLAUDE.md

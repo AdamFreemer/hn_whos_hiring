@@ -517,6 +517,24 @@ button:disabled {
 .note b {
   color: var(--muted);
 }
+.colophon {
+  margin-top: 40px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--faint);
+  letter-spacing: 0.04em;
+}
+.colophon a {
+  color: var(--accent-soft);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s;
+}
+.colophon a:hover {
+  border-color: var(--accent-soft);
+}
 .loading {
   color: var(--muted);
   font-size: 13px;
