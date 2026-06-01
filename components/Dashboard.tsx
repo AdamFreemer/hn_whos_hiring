@@ -16,6 +16,7 @@ import StatRow from "./StatRow";
 import Bars from "./Bars";
 import PostsPanel from "./PostsPanel";
 import TrendExplorer from "./TrendExplorer";
+import JobBrowser from "./JobBrowser";
 
 export default function Dashboard({
   overview,
@@ -180,6 +181,8 @@ export default function Dashboard({
       </section>
 
       <TrendExplorer threads={threads} techs={techs} topSlugs={topSlugs} />
+
+      <JobBrowser threads={threads} techs={techs} />
     </>
   );
 }

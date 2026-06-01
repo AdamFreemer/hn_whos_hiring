@@ -381,6 +381,8 @@ button:disabled {
   display: flex;
   gap: 14px;
   align-items: center;
+  flex-wrap: wrap;
+  row-gap: 7px;
 }
 .post .m a {
   color: var(--accent-soft);
@@ -393,6 +395,19 @@ button:disabled {
   border: 1px solid var(--line);
   padding: 1px 7px;
   color: var(--muted);
+}
+.post .m .jt {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+}
+.post .m .jt i {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  display: inline-block;
+  flex-shrink: 0;
 }
 .closex {
   margin-left: auto;

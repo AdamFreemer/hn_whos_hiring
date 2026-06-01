@@ -88,3 +88,31 @@ export async function getPostsForTech(threadId: number, slug: string, limit = 10
     .range(offset, offset + limit - 1);
   return { posts: data ?? [], total: count ?? 0 };
 }
+
+// Job browser: posts in a thread mentioning ANY of the selected techs, with
+// optional remote / has-salary filters. The embedded post_techs nests the
+// matched selected techs per post (PostgREST returns one row per post, not one
+// per tech), so this is distinct posts + an exact count for pagination.
+export async function getPostsMatching(
+  threadId: number,
+  slugs: string[],
+  opts: { remote?: boolean; hasSalary?: boolean } = {},
+  limit = 15,
+  offset = 0
+) {
+  if (!slugs.length) return { posts: [], total: 0 };
+  let q = supabase
+    .from("posts")
+    .select(
+      "id, title, author, body, is_remote, salary_min, salary_max, salary_currency, post_techs!inner(tech_slug)",
+      { count: "exact" }
+    )
+    .eq("thread_id", threadId)
+    .in("post_techs.tech_slug", slugs)
+    .order("id", { ascending: true })
+    .range(offset, offset + limit - 1);
+  if (opts.remote) q = q.eq("is_remote", true);
+  if (opts.hasSalary) q = q.not("salary_min", "is", null);
+  const { data, count } = await q;
+  return { posts: data ?? [], total: count ?? 0 };
+}
