@@ -243,6 +243,34 @@ button:disabled {
   margin: -6px 0 16px;
 }
 
+.freshness {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.5;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 10px 13px;
+  margin: 0 0 18px;
+}
+.freshness b {
+  color: var(--text);
+  font-weight: 600;
+}
+.freshness .fclock {
+  color: var(--faint);
+  flex-shrink: 0;
+}
+.freshness.live {
+  border-color: var(--accent);
+  background: rgba(255, 102, 0, 0.06);
+}
+.freshness.live .fclock {
+  color: var(--accent);
+}
+
 .bars {
   display: flex;
   flex-direction: column;

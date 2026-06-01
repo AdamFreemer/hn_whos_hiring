@@ -15,6 +15,7 @@ import { fmtMonth } from "@/lib/format";
 import StatRow from "./StatRow";
 import Bars from "./Bars";
 import PostsPanel from "./PostsPanel";
+import Freshness from "./Freshness";
 import TrendExplorer from "./TrendExplorer";
 import JobBrowser from "./JobBrowser";
 
@@ -155,6 +156,13 @@ export default function Dashboard({
         <p className="hint">
           ↳ Click any bar to load the matching job posts at the bottom.
         </p>
+
+        {currentThread && (
+          <Freshness
+            thread={currentThread}
+            isLatest={threadId === threads[0].id}
+          />
+        )}
 
         {loading || !currentCounts ? (
           <div className="loading">

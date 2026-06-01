@@ -35,7 +35,8 @@ export async function getTechs() {
 // List of threads for the month dropdown.
 export async function getThreads() {
   const { data } = await supabase
-    .from("threads").select("id, month, post_count, num_comments, hn_points")
+    .from("threads")
+    .select("id, month, post_count, num_comments, hn_points, posted_at, last_scraped_at, is_archived")
     .order("month", { ascending: false });
   return data ?? [];
 }

@@ -20,6 +20,9 @@ export type Thread = {
   post_count: number;
   num_comments: number;
   hn_points: number;
+  posted_at: string;
+  last_scraped_at: string | null;
+  is_archived: boolean;
 };
 
 export type Overview = {
