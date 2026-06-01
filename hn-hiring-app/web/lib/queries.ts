@@ -52,16 +52,29 @@ export async function getThreadCounts(threadId: number, category?: "language" | 
   return data ?? [];
 }
 
-// Trend: pct of each selected tech across a month range. Tiny payload.
+// Trend: pct of each selected tech across a month range. Over a wide range with
+// many techs the row count exceeds PostgREST's 1000-row cap (e.g. 32 techs ×
+// 180 months ≈ 5k rows), so page through with a stable primary-key order to
+// fetch them all. Callers key results by month+slug, so row order is moot.
+const PAGE = 1000;
 export async function getTrend(slugs: string[], fromMonth: string, toMonth?: string) {
-  let q = supabase
-    .from("thread_tech_counts")
-    .select("pct, post_count, tech_slug, threads!inner(month)")
-    .in("tech_slug", slugs)
-    .gte("threads.month", fromMonth);
-  if (toMonth) q = q.lte("threads.month", toMonth);
-  const { data } = await q.order("month", { ascending: true, foreignTable: "threads" });
-  return data ?? [];
+  const all: any[] = [];
+  for (let offset = 0; ; offset += PAGE) {
+    let q = supabase
+      .from("thread_tech_counts")
+      .select("pct, post_count, tech_slug, threads!inner(month)")
+      .in("tech_slug", slugs)
+      .gte("threads.month", fromMonth)
+      .order("thread_id", { ascending: true })
+      .order("tech_slug", { ascending: true })
+      .range(offset, offset + PAGE - 1);
+    if (toMonth) q = q.lte("threads.month", toMonth);
+    const { data } = await q;
+    if (!data?.length) break;
+    all.push(...data);
+    if (data.length < PAGE) break;
+  }
+  return all;
 }
 
 // Posts mentioning a tech in a given thread (the click-to-load feature).
