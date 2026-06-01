@@ -87,8 +87,7 @@ export default async function Page() {
         Built lovingly by{" "}
         <a href="https://adamfreemer.com" target="_blank" rel="noopener">
           Adam Freemer
-        </a>{" "}
-        &amp; Claude
+        </a>
       </footer>
     </div>
   );

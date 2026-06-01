@@ -10,10 +10,13 @@ export default function Bars({
   rows,
   selectedSlug,
   onSelect,
+  sparkBySlug,
 }: {
   rows: BarDatum[];
   selectedSlug: string | null;
   onSelect: (row: BarDatum) => void;
+  // trailing ~12-month pct history per slug (oldest → newest), for the sparkline
+  sparkBySlug?: Record<string, number[]>;
 }) {
   const [animate, setAnimate] = useState(false);
   const max = Math.max(1, ...rows.map((r) => r.n));
@@ -66,9 +69,46 @@ export default function Bars({
             <span className="val">
               <b>{r.n}</b> · {r.pct.toFixed(0)}%
             </span>
+            <Sparkline values={sparkBySlug?.[r.slug]} />
           </button>
         );
       })}
     </div>
+  );
+}
+
+// Tiny inline bar-chart of a tech's last ~12 months of share, scaled to its own
+// max so the shape reads at a glance; the final (selected-month) bar is
+// highlighted. Decorative — the row already states the current count + pct.
+function Sparkline({ values }: { values?: number[] }) {
+  if (!values || values.length < 2) return <span className="spark" />;
+  const W = 72;
+  const H = 22;
+  const gap = 2;
+  const n = values.length;
+  const bw = (W - (n - 1) * gap) / n;
+  const max = Math.max(...values, 0.0001);
+  return (
+    <svg
+      className="spark"
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      {values.map((v, i) => {
+        const bh = v > 0 ? Math.max(1.5, (v / max) * H) : 0;
+        const last = i === n - 1;
+        return (
+          <rect
+            key={i}
+            x={i * (bw + gap)}
+            y={H - bh}
+            width={bw}
+            height={bh}
+            className={last ? "sb last" : "sb"}
+          />
+        );
+      })}
+    </svg>
   );
 }

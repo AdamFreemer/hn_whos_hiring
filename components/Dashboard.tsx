@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
-import { getThreadCounts } from "@/lib/queries";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { getThreadCounts, getTrend } from "@/lib/queries";
+import type { TrendRow } from "@/lib/types";
 import type {
   BarDatum,
   Category,
@@ -39,8 +40,11 @@ export default function Dashboard({
   });
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<BarDatum | null>(null);
+  // per-thread sparkline series: { [threadId]: { [slug]: pct[] (oldest→newest) } }
+  const [spark, setSpark] = useState<Record<number, Record<string, number[]>>>({});
 
   const currentCounts = cache[threadId];
+  const currentSpark = spark[threadId];
   const currentThread = useMemo(
     () => threads.find((t) => t.id === threadId) ?? threads[0],
     [threads, threadId]
@@ -67,6 +71,44 @@ export default function Dashboard({
   );
 
   const rows = useMemo(() => buildRows(cat), [buildRows, cat]);
+
+  // Fetch the trailing ~12-month share history (all techs) ending at the
+  // selected thread, for the per-bar sparklines. One query per thread, cached.
+  useEffect(() => {
+    if (spark[threadId]) return;
+    const idx = threads.findIndex((t) => t.id === threadId);
+    if (idx < 0) return;
+    const months = threads
+      .slice(idx, idx + 12)
+      .map((t) => t.month)
+      .sort();
+    if (months.length < 2) {
+      setSpark((prev) => ({ ...prev, [threadId]: {} }));
+      return;
+    }
+    let cancelled = false;
+    getTrend(
+      techs.map((t) => t.slug),
+      months[0],
+      months[months.length - 1]
+    ).then((data) => {
+      if (cancelled) return;
+      const trendRows = data as TrendRow[];
+      const lk = new Map<string, number>();
+      for (const r of trendRows) {
+        const m = one(r.threads)?.month;
+        if (m) lk.set(`${m}|${r.tech_slug}`, Number(r.pct));
+      }
+      const bySlug: Record<string, number[]> = {};
+      for (const t of techs) {
+        bySlug[t.slug] = months.map((m) => lk.get(`${m}|${t.slug}`) ?? 0);
+      }
+      setSpark((prev) => ({ ...prev, [threadId]: bySlug }));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [threadId, threads, techs, spark]);
 
   const topSlugs = useMemo(
     () =>
@@ -174,6 +216,7 @@ export default function Dashboard({
             rows={rows}
             selectedSlug={selected?.slug ?? null}
             onSelect={(r) => setSelected(r)}
+            sparkBySlug={currentSpark}
           />
         )}
 

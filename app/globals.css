@@ -278,7 +278,7 @@ button:disabled {
 }
 .bar-row {
   display: grid;
-  grid-template-columns: 148px 1fr 86px;
+  grid-template-columns: 148px 1fr 86px 72px;
   align-items: center;
   gap: 14px;
   cursor: pointer;
@@ -338,6 +338,36 @@ button:disabled {
 .bar-row .val b {
   color: var(--text);
   font-weight: 600;
+}
+.spark {
+  width: 72px;
+  height: 22px;
+  display: block;
+  overflow: visible;
+}
+.spark .sb {
+  fill: var(--faint);
+  opacity: 0.6;
+}
+.spark .sb.last {
+  fill: var(--accent-soft);
+  opacity: 1;
+}
+.bar-row.feat .spark .sb {
+  fill: var(--accent);
+  opacity: 0.45;
+}
+.bar-row.feat .spark .sb.last {
+  fill: var(--accent-soft);
+  opacity: 1;
+}
+@media (max-width: 700px) {
+  .bar-row {
+    grid-template-columns: 148px 1fr 86px;
+  }
+  .spark {
+    display: none;
+  }
 }
 @media (max-width: 560px) {
   .bar-row {
