@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import type { Thread } from "@/lib/types";
 import { relativeTime, nextRelease } from "@/lib/format";
 
@@ -40,38 +40,32 @@ export default function Freshness({
     ? (nowMs - new Date(thread.posted_at).getTime()) / 86400000
     : null;
 
-  let status: string;
-  let live = false;
-  if (thread.is_archived) {
+  const nr = isLatest ? nextRelease(thread.month, nowMs) : null;
+  const live = isLatest && ageDays != null && ageDays < 3;
+
+  let status: ReactNode;
+  if (isLatest) {
+    status = (
+      <>
+        On the first couple days of the month data may lag a bit as the
+        recurring background job catches up with job listings.
+        {nr && nr.days > 0 && (
+          <> Next posting is ~{nr.days} days away.</>
+        )}
+      </>
+    );
+  } else if (thread.is_archived) {
     status =
       "Final snapshot — this thread is frozen (HN has closed it to new comments).";
-  } else if (ageDays != null && ageDays < 1) {
-    status =
-      "This month's thread just went up and is filling fast — these counts are preliminary and will climb over the next ~2 weeks.";
-    live = true;
-  } else if (ageDays != null && ageDays < 14) {
-    status =
-      "Still filling — HN accepts new posts for about two weeks, so these counts are still rising.";
-    live = true;
   } else {
-    status = "Settled — counts for this thread are essentially final.";
+    status = "Counts for this thread are essentially final.";
   }
-
-  const nr = isLatest ? nextRelease(thread.month, nowMs) : null;
 
   return (
     <div className={`freshness${live ? " live" : ""}`}>
       <span className="fclock">◷</span>
       <span>
         Data updated <b>{updated}</b>. {status}
-        {nr && nr.days > 0 && (
-          <>
-            {" "}
-            Next month&apos;s thread ({nr.label}) is expected around{" "}
-            {nr.dateLabel} — about <b>{nr.days}</b> day{nr.days === 1 ? "" : "s"}{" "}
-            away; check back then.
-          </>
-        )}
       </span>
     </div>
   );

@@ -1,7 +1,9 @@
 import { getOverview, getThreads, getThreadCounts, getTechs } from "@/lib/queries";
+import { getLatestJobs } from "@/lib/hnJobs";
 import type { Overview, Thread, Tech, CountRow } from "@/lib/types";
 import Dashboard from "@/components/Dashboard";
 import Methodology from "@/components/Methodology";
+import LatestJobs from "@/components/LatestJobs";
 
 // ISR: the underlying data changes a few times a day at most, so serve a cached
 // render and revalidate periodically. A HN front-page spike is then cheap.
@@ -38,7 +40,7 @@ async function load(): Promise<InitialData | null> {
 }
 
 export default async function Page() {
-  const data = await load();
+  const [data, jobs] = await Promise.all([load(), getLatestJobs(10)]);
 
   return (
     <div className="wrap">
@@ -58,8 +60,7 @@ export default async function Page() {
           </a>{" "}
           account: every monthly thread it has ever posted, and what languages
           and frameworks show up in any given one. Counts are post-level, pulled
-          from the public Hacker News data on a schedule — the page itself just
-          reads pre-aggregated numbers, so it stays fast.
+          from the public Hacker News data on a schedule.
         </p>
       </header>
 
@@ -82,6 +83,15 @@ export default async function Page() {
       )}
 
       <Methodology />
+
+      <LatestJobs jobs={jobs} />
+
+      <aside className="plug">
+        Check out another cool project:{" "}
+        <a href="https://flip.watch" target="_blank" rel="noopener">
+          flip.watch
+        </a>
+      </aside>
 
       <footer className="colophon">
         Built by{" "}
