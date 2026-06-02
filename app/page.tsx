@@ -84,7 +84,7 @@ export default async function Page() {
       <Methodology />
 
       <footer className="colophon">
-        Built lovingly by{" "}
+        Built by{" "}
         <a href="https://adamfreemer.com" target="_blank" rel="noopener">
           Adam Freemer
         </a>
